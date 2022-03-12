@@ -141,7 +141,7 @@ https://www.ipa.go.jp/security/awareness/vendor/programmingv2/cc01.html
 解説の範囲が逸脱するけど、追加したい。エクスプロイトの紹介だけでする。
 
 # WinAFL入門
-前置きが長くなったが、これからは実際にFuzzingを実施し、脆弱性を発見する。本解説では脆弱性の修正方法や攻撃方法については取り扱わない。したがって、本解説と同様の方法で別のアプリケーションに大してFuzzingを行い、何らかの脆弱性を発見した場合は、そのアプリケーションの開発者と直接連絡ができる場合は直接相談することを勧める。
+前置きが長くなったが、これからは実際にFuzzingを実施し、脆弱性を発見する。本解説では脆弱性の修正方法や攻撃方法については取り扱わない。したがって、本解説と同様の方法で別のアプリケーションに大してFuzzingを行い、何らかの脆弱性を発見した場合は、そのアプリケーションの開発者と直接連絡ができる場合は相談することを勧める。
 
 ## 必要なものリスト
 - WinAFL
@@ -161,6 +161,18 @@ https://www.ipa.go.jp/security/awareness/vendor/programmingv2/cc01.html
    https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads
 
    WinAFLのビルドに使用
+
+- cmake-3.23.0-rc3-windows-x86_64
+
+   https://cmake.org/download/
+   
+   WinAFLのビルドに使用
+
+- git for windows version 2.35.1.2
+
+  https://gitforwindows.org/
+
+  WinAFLのダウンロードに使用
 
 - JWCAD　(ver8.24a)
 
@@ -206,11 +218,11 @@ White Box Fuzzingは、解析対象のアプリケーションのソースコー
 ### 静的バイナリ計装についての補足
 静的バイナリ計装を、解析対象のソースコードが入手できない場合に実行した場合の特徴について解説する。
 
-この様な条件でも解析は可能で、その場合は解析対象を逆アセンブルし、バイナリレベルで計装コードを追加することになる。研究用のツールとして、PEBILやDyninstと呼ばれるものが利用可能だが、実用性は低い。ここでは詳細についてはこれ以上触れないが、動的バイナリ計装との比較を下に示す。
+この様な条件でも解析は可能で、その場合は解析対象を逆アセンブルし、バイナリレベルで計装コードを追加することになる。研究用のツールとして、PEBILやDyninstと呼ばれるものが利用可能だが、発展途中である。ここでは詳細についてはこれ以上触れないが、動的バイナリ計装との比較を下に示す。
 
 | DBI  | SBI  |
 | ---- | ---- |
-|+逆アセンブルが不要|+逆アセンブルが必要でエラーが起こりやすい|
+|+逆アセンブルが不要|-逆アセンブルが必要でエラーが起こりやすい|
 |+バイナリの書き換えが不要|-バイナリの書き換えでエラーが起こりやすい|
 |+pdbファイルの様なシンボル情報が不要|-安定動作のためにはシンボルが必要|
 
@@ -289,4 +301,49 @@ if (_stricmp(module_name, "USER32.dll") == 0) {
 ```
 この例では、```module_name```が文字列```USER32.dll```と一致した場合、ポインタ```to_wrap```に対して```dr_get_proc_address```関数により取得した```MessageBoxW```関数のアドレスを代入している。その後、```drwrap_replace```関数の第１引数に```to_wrap```を指定し、```MessageBoxW```が呼び出された際にこれをフックして、代わりに準備した```Messageboxw_interceptor```関数とすり替えている。
 
+## Visual Studio 2017の準備
+Visual Studio 2017は、WinAFLのビルドに必要である。基本的には[こちら](https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads) からVisual Studio Community 2017(version 15.9)を選択してダウンロードすれば良い。インストーラを入手したら、あとは手順に従ってインストールを完了させれば良い。
+
+注意点としては、スタンドアロン端末にインストールする場合は別の方法が必要であり、本来の方法よりも数倍は時間も手間も掛かる。問題が発生した際の対処にも同様に時間と手間を要し、しかも場合によってはスタンドアロン環境では解決不可能な場合もあるため、業務としてFuzzingを実施する場合は、この点について特に慎重に検討をすべきである。その上で、オフライン環境下でのVisual Studio のインストール方法について説明する。
+
+### オフライン環境下でのインストール手順
+まずは、インターネットに接続している環境下で、オフラインインストールファイルを作成する。
+
+1. [Visual Studio 2017](https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads)のインストーラをダウンロード
+2. インストーラを任意の空のフォルダに配置
+3. 下記のコマンドを１行ずつ実行しダウンロード完了を待つ
+
+```
+mkdir in_vs2017
+vs_community__xxxxxxxx.xxxxxxx.exe --layout in_vs2017 --lang ja-JP
+```
+4. ダウンロード端末にフォルダを移動する
+5. フォルダ内の```vs_community__xxxxxxxx.xxxxxxx.exe```を実行
+
+後は、通常の手順と同じである。
+
+## cmakeの準備
+cmakeはWinAFLのビルドで必要なツールである。[こちら](https://cmake.org/download/)から、```cmake-3.23.0-rc3-windows-x86_64.msi```をダウンロードし、インストールを始めれば良い。オフライン環境でも動作するため、Fuzzing端末がスタンドアロンであっても問題なくインストールできる。
+
+## git for windowsの準備
+後で書く
+
 ## WinAFLの準備
+WinAFLの準備は大変である。まず前提として、Visual Studio 2017のインストールが必要なので、まだ済ませていないのであれば、先に説明した通りに実施して頂きたい。また、cmakeのインストールも忘れずに実施しなければならない。
+
+### WinAFLのダウンロード
+本解説では、Cドライブ直下にWinAFLをインストールすると仮定して説明する。
+
+まずは、スタートメニュー → すべてのアプリケーション → Visual Studio 2017 → x86 Native Tools Command Promptを開く。（Windowsキー押下後に、```x86```と入力すると候補に表示される）
+
+その後、```x86 Native Tools Command Prompt```上で以下の様に実行する。
+
+```
+$ cd C:\
+$ git clone --recursive https://github.com/googleprojectzero/winafl
+$ cd winafl && mkdir build32 && cd build32
+$ cmake -G"Visual Studio 15 2017" .. -DDynamoRIO_DIR=path_of_DynamoRIO_cmake
+$ cmake --build . --config Release
+```
+
+もしも上記例と同様にgitが利用できない場合は、```git clone --recursive```により本来ダウンロードされるはずであった、```third_party```フォルダ内のファイルを全て手動で用意する必要がある。

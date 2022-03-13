@@ -404,9 +404,22 @@ JWCADで対応している拡張子は、```JWC```、```JWW```、```DXF```、```
 
 試しに、全く無関係なbmpファイルの拡張子をjwwに変更して読み込ませてみると、```このファイル形式には対応していません```と表示された。これにより、上記の５種類のいずれかのファイルであると判定されなかった場合は、それ以上読み込みを行わないことが分かる。
 
-これらの事実から、WinAFLの生成する入力ファイルにはいずれかの拡張子を付けなければならないことが分かる。実は、WinAFLはFuzzingの過程で生成する入力ファイルには拡張子を省く仕様になっている。そこで、この部分について修正が必要である。
+これらの事実から、WinAFLの生成する入力ファイルにはいずれかの拡張子を付けなければならないことが分かる。実は、WinAFLはFuzzingの過程で生成する入力ファイルには拡張子を省く仕様になっている。そこで、この部分について後ほど修正が必要である。
 
-#### afl-fuzz.cの修正
+### メッセージボックス
+実は既に拡張子とファイル読み込みの部分で判明しているが、入力されたファイルが正規のフォーマットではないと判断されると、メッセージボックスが表示され、動作が中断してしまう。その都度動作が停止してしまうと、Fuzzingを適切に実行できない。
+
+そこで、MessageBox関数の呼び出しをフックすることで、別に用意した関数とすり替え、動作を継続されられるように、WinAFLを後ほど改造する。詳細についてはDynamoRioの説明である程度しているので、必要に応じて遡って参考にしてもらいたい。
+
+## WinAFLの改造
+JWCADの解析結果により、以下の２点の修正が必要であることが分かった。
+
+- ファイル拡張子の追加
+- メッセージボックスのすり替え
+
+そこで、これらの修正方法を説明する。
+
+### afl-fuzz.cの修正
 修正箇所は```afl-fuzz.c```内の計３箇所である。ソースコード内を```.cur_input```で検索すれば良い。この```.cur_input```はWinAFLがFuzzing中に生成する、これから入力するファイルの名前である。そこで、今回は以下の様にソースコードを訂正する。
 
 訂正前
@@ -424,12 +437,35 @@ JWCADで対応している拡張子は、```JWC```、```JWW```、```DXF```、```
 
 ５種類の拡張子のいずれかであれば問題ない。今回は```jww```拡張子にした。他の２箇所にいついても、同様に修正すれば良い。
 
-### MessageBox
+### WinAFL.cの修正
+最初に、```MessageBoxA```及び```MessageBoxW```と同じ引数と戻り値を持つ無害な関数を定義する。戻り値としては、常に「はい」を押下されたことになる様に、定数値を返すのみにする。
 
+608行辺りに以下を追加する。
+```
+static int
+messageboxa_interceptor(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+	return IDOK;
+}
 
+static int
+messageboxw_interceptor(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType) {
+	return IDOK;
+}
+```
 
-## WinAFLの改造
+更に、```messageBox```の呼び出しをフックし、上記関数とすり替えるために、740行辺りに以下を追加する。
+```
+if (_stricmp(module_name, "USER32.dll") == 0) {
+	to_wrap = (app_pc)dr_get_proc_address(info->handle, "MessageBoxW");
+	drwrap_replace(to_wrap, (app_pc)messageboxw_interceptor, (bool)NULL);
+	to_wrap = (app_pc)dr_get_proc_address(info->handle, "MessageBoxA");
+	drwrap_replace(to_wrap, (app_pc)messageboxa_interceptor, (bool)NULL);
+}
+```
+注意点としては、```USER32.dll```は大文字にする必要があることと、```dr_get_proc_address```及び```NULL```は、上記の通りに型変換をしないと、ビルド時に警告を受けることくらいだろう。
 
+### WinAFLの再ビルド
+ここまでの修正を完了させたら、再度ビルドを行う。手順としては既に紹介したが、念のために```build32```を消去する。また、今後新たにFuzzingを行うアプリケーションのために、都度これらの修正内容についての技術詳細をドキュメント化すべきであり、業務の属人化を防がなければならない。
 
 ### ビルドが終了したら
 今後使用するfuzzer本体は、```C:\winafl\build32\bin\Release\afl-fuzz.exe```である。そこで、このディレクトリにパスを通すと今後の作業が楽になるので、これを機に設定しよう。

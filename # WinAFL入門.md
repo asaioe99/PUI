@@ -1,5 +1,5 @@
-# 仕事のためのFuzzing入門
-本解説は、仕事のためにFuzzingについて学ぶ必要のある人のために、取り急ぎ最低限の知識を身に着けるためのものである。その中でも特に、管理者と実務担当者を対象としており、実務担当者は本解説の各タイトルに〇印がある部分を、そして管理者は△印のある部分を拾い読みすれば良い。
+# 業務のためのFuzzing入門
+本解説は、業務のためにFuzzingについて学ぶ必要のある人のために、取り急ぎ最低限の知識を身に着けるためのものである。その中でも特に、管理者と実務担当者を対象としており、実務担当者は本解説の各タイトルに〇印がある部分を、そして管理者は△印のある部分を拾い読みすれば良い。
 
 この解説だけでは完結しない知識もあるので、その部分については参考文献を載せているので参照して頂きたい。また、管理者については実際にFuzzingを実施する訳ではないので、主に必要な環境や整えておくべき人材、更に機材や人材を評価する観点について説明する。しかしながら、管理者が適切に原理や一般論としてのFuzzingを理解していないと、本来得られるはずであるパフォーマンスが発揮されないばかりか、実務担当者の不平不満や怠慢を許す恐れがある。そのため、余力があれば実務担当者と同様に、実際にFuzzingを実施する体験をして欲しい。
 
@@ -61,7 +61,7 @@ Fuzzingを行う目的は、対象のアプリケーションから脆弱性を�
 
 さて、以上を理解した上で、それでもコンピュータの性能が重要であることを強調しよう。そして、以下の様な点に注意して導入するコンピュータを決定すべきである。
 
-- コア数が多い
+- CPUのコア数が多い
 - メモリのサイズが大きい
 - 高速に読み書きできる不揮発性記憶媒体（SSD）を使用している
 - 堅牢で信頼性が高い
@@ -73,9 +73,11 @@ Fuzzingを行う目的は、対象のアプリケーションから脆弱性を�
 最も重要な要素であるため、優先してリソースを割くべきである。以下は、優れた性能であると考えられる具体的な製品の紹介である。
 
 - Intel Core i9-12900K
+
   16コア24スレッドであるため、WinAFLであれば最大24プロセスの並列処理が可能である。また、シングルコア当たりの性能が高いため、優れたパフォーマンスを発揮できる。また、Intel PTという機能に対応しているため、特定の条件のみではあるが、他社同等製品のCPUよりも１桁以上高速にFuzzingを実施可能な場合がある。
 
 - AMD Ryzen Threadripper PRO 3995WX
+
   64コア128スレッドであり、現時点では最速のFuzzingが実施可能であると考えられる。
 
 #### メモリ
@@ -95,9 +97,11 @@ Fuzzingを行う目的は、対象のアプリケーションから脆弱性を�
   アンチウイルスソフトは、Fuzzingと同様の技術を用いているため、同時に用いることはできない。そのため、Fuzzing端末についてはOS標準に機能を除き、一切のアンチウイルス製品を導入してはならない。
 
 - 各種解析ツール
+
   Fuzzingを実施する際には、先だって対象のアプリケーションを解析する必要がある。そのため、WinDBGやGhidra等のツールが必要になる。ここで重要なのは、これらのツールは必ずしも商用の製品は必要ではなく、全てOSSのもので十分に要件を満たすが、一方で、インターネット接続環境が制約なく整備されていない場合、これらのOSSを満足に利用できない。そのため、以降で示す環境構築時の手順を熟読し、これらの環境を不便なく構築できるようにしなければならない。
 
 - 端末の数について
+
   最小構成であっても、Fuzzing用の端末と解析用の端末で各１台は必要である。解析用の端末は、Fuzzing用とは異なり最高性能を目指す必要はない。また、Fuzzing用の端末については、複数の端末を連携・分散させることもできるため、より高速なFuzzingが求められる場合は複数の端末を導入し、ネットワークを構成することも考えるべきだる。残念ながらこの様な運用方法に関する実用的な経験や技術文献がないため、本解説では触れることができない。
 
 ### 必要な人材△
@@ -108,6 +112,7 @@ Fuzzingを行う目的は、対象のアプリケーションから脆弱性を�
 - 自主的に学習を進められる性格である（技術進歩が早いため、常に勉強が必要）
 - 知識・技術を周囲に普及できる（効率化には情報共有が必須である）
 - コンピュータ本体に関する知識と技術がある（環境構築や維持運用に必要）
+- 英語や中国語を始めとした外国語の読解力（技術情報の大半は外国語）
 
 他の技術とも共通する要素は少なくないが、Fuzzingに関する技術情報は広く出回ってはいないため、体系的な入門書や解説書は存在していない。そのため、自発的に情報を収集し、新たな技術を学習し、そして発見した技術や情報を組織に還元する能力が必要である。そして、ここで示したような能力を発揮した人間を評価すべきである。
 
@@ -138,7 +143,7 @@ https://www.ipa.go.jp/security/awareness/vendor/programmingv2/cc01.html
 後で追加。```_s```の関数について簡単に紹介したい。あとは開発環境をそもそも変えるとか？
 
 ### 脆弱性の攻撃方法
-解説の範囲が逸脱するけど、追加したい。エクスプロイトの紹介だけでする。
+解説の範囲が逸脱するけど、追加したい。エクスプロイトの紹介だけで済ませる？
 
 # WinAFL入門
 前置きが長くなったが、これからは実際にFuzzingを実施し、脆弱性を発見する。本解説では脆弱性の修正方法や攻撃方法については取り扱わない。したがって、本解説と同様の方法で別のアプリケーションに大してFuzzingを行い、何らかの脆弱性を発見した場合は、そのアプリケーションの開発者と直接連絡ができる場合は相談することを勧める。
@@ -468,10 +473,105 @@ if (_stricmp(module_name, "USER32.dll") == 0) {
 ここまでの修正を完了させたら、再度ビルドを行う。手順としては既に紹介したが、念のために```build32```を消去する。また、今後新たにFuzzingを行うアプリケーションのために、都度これらの修正内容についての技術詳細をドキュメント化すべきであり、業務の属人化を防がなければならない。
 
 ### ビルドが終了したら
-今後使用するfuzzer本体は、```C:\winafl\build32\bin\Release\afl-fuzz.exe```である。そこで、このディレクトリにパスを通すと今後の作業が楽になるので、これを機に設定しよう。
+今までの作業で、Fuzzingに必要な準備の大半は終了した。残すところは```targrt_offset```の選定と、シード（seed：種）ファイルの準備である。どちらも必ずしも１つに絞ることはできないものであり、解析者の腕によりFuzzingそのもののパフォーマンスを大きく作用する重要な技術である。更に、状況に応じてカバレッジ計測対象についても考慮する必要もある。
 
-説明はあとで
+いずれにせよ、解析者は広く関連する技術分野を理解していなければならないのであって、各分野の背景になる基本的な考え方や原理を蔑ろにはできない。反対に言えば、基礎となる以下の分野をしっかりと抑えていれば、短時間で優秀なFuzzing実務担当者になることができる。
+
+- 計算機科学
+- 低レイヤー
+- 各種ファイルフォーマットに関する実用的な理解
+
+特に、何らかのファイルフォーマットについて、相応な時間をかけて仕様を調べ、理解した経験があると理想的である。多くの場合、Fuzzingの結果発見された不正な入力は、対象アプリケーションの扱うファイルフォーマット上の些細な特徴に対し、これを処理するアプリケーションの不備を突くことによって不正な動作を引き起こすことになる。そのため、ファイルフォーマットを詳しく調査し、理解した経験は必ず活きる筈である。
+
+## Fuzzing実施のための準備
+いよいよFuzzingの実施に取り掛かる。ここからは、実施の上で必要な各種コマンドのオプションを正確に設定する方法について説明する。入念な事前の解析により、対象アプリケーションに併せたWinAFLの修正が済んでいれば、多くの場合、Fuzzingが適切に実行されない原因はオプションの指定方法に誤りがある。
+
+### 各種オプション一覧
+以下が使用するオプションの一覧であるが、今回の解析で使用するものはこの中の一部である。
+
+翻訳や加筆は後でやる
+```
+-i dir        - input directory with test cases
+-o dir        - output directory for fuzzer findings
+-t msec       - timeout for each run
+-s            - deliver sample via shared memory
+-D dir        - directory containing DynamoRIO binaries (drrun, drconfig)
+-w path       - path to winafl.dll
+-e            - expert mode to run WinAFL as a DynamoRIO tool
+-P            - use Intel PT tracing mode
+-Y            - enable the static instrumentation mode
+-f file       - location read by the fuzzed program
+-m limit      - memory limit for the target process
+-p            - persist DynamoRIO cache across target process restarts
+-c cpu        - the CPU to run the fuzzed program
+-d            - quick & dirty mode (skips deterministic steps)
+-n            - fuzz without instrumentation (dumb mode)
+-x dir        - optional fuzzer dictionary
+-I msec       - timeout for process initialization and first run
+-T text       - text banner to show on the screen
+-M \\ -S id   - distributed mode
+-C            - crash exploration mode (the peruvian rabbit thing)
+-l path       - a path to user-defined DLL for custom test cases processing
+-A module     - a module identifying a unique process to attach to
+```
+
+```
+-covtype         - the type of coverage being recorded. Supported options are
+                   bb (basic block, default) or edge.
+-coverage_module - module for which to record coverage. Multiple module flags
+                   are supported.
+-target_module   - module which contains the target function to be fuzzed.
+                   Either -target_method or -target_offset need to be
+                   specified together with this option.
+-target_method   - name of the method to fuzz in persistent mode. For this to
+                   work either the method needs to be exported or the symbols
+                   for target_module need to be available. Otherwise use
+                   -target_offset instead.
+-target_offset   - offset of the method to fuzz from the start of the module.
+-fuzz_iterations - Maximum number of iterations for the target function to run
+                   before restarting the target process.
+-nargs           - Number of arguments the fuzzed method takes. This is used
+                   to save/restore the arguments between runs.
+-call_convention - The default calling convention is cdecl on 32-bit x86
+                   platforms and Microsoft x64 for Visual Studio 64-bit
+                   applications. Possible values:
+                       * fastcall: fastcall
+                       * ms64: Microsoft x64 (Visual Studio)
+                       * stdcall: cdecl or stdcall
+                       * thiscall: thiscall
+-debug           - Debug mode. Does not try to connect to the server. Outputs
+                   a log file containing loaded modules, opened files and
+                   coverage information.
+-logdir          - specifies in which directory the log file will be written
+                   (only to be used with -debug).
+-thread_coverage - If set, WinAFL will only collect coverage from a thread
+                   that executed the target function
+```
+
+
+結論から記せば、今回の解析では次の通りのコマンドを実行することになる。
+
+#### 実行コマンド例
+```
+afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
+```
+#### フォルダ等の配置
+Cドライブ直下にWinAFL及びDynamoRIO8.0.18460を配置する。また、JWCADのJWWフォルダ及びシードを入れたinputフォルダはともに```C:\winafl\build32\bin\Release```に配置する。更に、JWWフォルダ内には空のoutputファイルを作成する。
+
+### -i
+
+### -o
+
+### t msec
+
+### -D dir
+
+### 
 
 ## Fuzzingの実施
+
+### 単体Fuzzing
+
+### 並列Fuzzing
 
 ## 結果の解析

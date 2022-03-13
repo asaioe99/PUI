@@ -570,6 +570,7 @@ C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
 ```
 afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
 ```
+
 #### フォルダ等の配置
 Cドライブ直下にWinAFL及びDynamoRIO8.0.18460を配置する。また、JWCADのJWWフォルダ及びシードを入れたinputフォルダはともに```C:\winafl\build32\bin\Release```に配置する。更に、JWWフォルダ内には空のoutputファイルを作成する。
 
@@ -625,8 +626,40 @@ Fuzzingを高速に実行するために、WinAFLは```-target_offset```で指�
 関数呼び出し規則の良い資料があったので、後で追記する。
 
 ## Fuzzingの実施
+これまでに解説した通りに、```afl-fuzz```の実行コマンドは３つの部分で構成されている。各部分を適切に設定できたのなら、それらを```--```により結合する。今回の場合は以下の通りになる筈である。
 
-### 単体Fuzzing
+```
+afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
+```
+
+これを、管理者権限で立ち上げたたコマンドプロンプトで実行すれば良い。実行の際は、コマンドプロンプトのカレントディレクトリを```afl-fuzz.exe```のある、```C:\winafl\build32\bin\Release```に移動することも忘れてはいけない。
+
+### 実行時の画面
+```afl-fuzz.exe```を無事に実行すると、以下の様な画面が表示される。
+
+画像aflfuzz1
+
+各項目について順に説明する。
+
+|process timing| |
+|:---|:---|
+|run time|実行開始からの経過時間|
+|last new path||
+|last uniq crash|新種のcrashファイル発見からの経過時間|
+|last uniq hang|新種のhangファイル発見からの経過時間|
+
+|cycle progress| |
+|:---|:---|
+|now processing|現進捗状況|
+|paths timed out||
+
+|stage progress||
+|:---|:---|
+|now truing|現選択戦略|
+|stage execs|現戦略実行回数|
+|total execs|総実行回数|
+|execs speed|実行速度|
+
 
 ### 並列Fuzzing
 

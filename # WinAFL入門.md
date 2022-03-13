@@ -489,10 +489,18 @@ if (_stricmp(module_name, "USER32.dll") == 0) {
 ### 各種オプション一覧
 以下が使用するオプションの一覧であるが、今回の解析で使用するものはこの中の一部である。
 
-翻訳や加筆は後でやる
+コマンドは以下の様に３つの部分により構成されている。
+
 ```
--i dir        - input directory with test cases
--o dir        - output directory for fuzzer findings
+afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
+```
+
+翻訳や加筆は後でやる
+
+```[afl options]```
+```
+-i dir        - テストケース用のinputディレクトリを指定
+-o dir        - fuzzerが発見したファイルを格納するoutputディレクトリを指定
 -t msec       - timeout for each run
 -s            - deliver sample via shared memory
 -D dir        - directory containing DynamoRIO binaries (drrun, drconfig)
@@ -515,6 +523,7 @@ if (_stricmp(module_name, "USER32.dll") == 0) {
 -A module     - a module identifying a unique process to attach to
 ```
 
+#### [instrumentation options]
 ```
 -covtype         - the type of coverage being recorded. Supported options are
                    bb (basic block, default) or edge.
@@ -548,10 +557,16 @@ if (_stricmp(module_name, "USER32.dll") == 0) {
                    that executed the target function
 ```
 
+#### target_cmd_line
+今回の場合は以下の例の通りになる。尚、```@@```は入力ファイル等のプレースホルダとなり、```.cor_input```がここに代入される。
 
-結論から記せば、今回の解析では次の通りのコマンドを実行することになる。
+```
+C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
+```
 
 #### 実行コマンド例
+結論から記せば、今回の解析では次の通りのコマンドを実行することになる。
+
 ```
 afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
 ```
@@ -559,14 +574,55 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 Cドライブ直下にWinAFL及びDynamoRIO8.0.18460を配置する。また、JWCADのJWWフォルダ及びシードを入れたinputフォルダはともに```C:\winafl\build32\bin\Release```に配置する。更に、JWWフォルダ内には空のoutputファイルを作成する。
 
 ### -i
+このオプションは、seedファイルを格納するinputフォルダを指定するものである。基本的には```afl-fuzz.exe```と同じ階層に準備すれば良い。内部に入れるseedファイルの選び方については後述する。
 
 ### -o
+このオプションにより指定されたフォルダには、以下のフォルダとファイルが自動的に作成される。
 
-### t msec
+#### フォルダ
+- crashes
+- drcache
+- hangs
+- ptmodules
+- queue
+
+#### ファイル
+- .cur_input(.jww)
+- fuzz_bitmap
+- fuzzer_stats
+- plot_data
+
+重要なものについてのみ説明する。```crashes```フォルダ内には、メモリアクセス違反等でアプリケーションがクラッシュした場合の入力ファイルの内、ユニークなものが格納される。また、```hangs```フォルダ内には```-t```で指定した以上の時間、動作が中断した場合の入力ファイルを格納する。大抵の場合、それは無限ループを引き起こしてフリーズさせる入力ファイルである。
+
+```.cur_input(.jww)```ファイルについては既に説明しているが、現在入力されているファイルである。これは、```queue```フォルダ内で読み込み待ちをしているファイルから順に呼び出されることになる。
+
+### -t msec
+指定した値が、各実行における制限時間となる。単位はミリ秒であり、通常はそれほど大きな値を指定する必要はない。今回は10,000 msec程度で十分である。
 
 ### -D dir
+DynamoRioのbin32/64ディレクトリのパスを指定する。
 
-### 
+### -coverage_module
+カバレッジを計測する対象を指定する。今回の場合、```Jw_win.exe```は当然として、併せて```Jw_win.exe```が使用する```common_lib.dll```も追加で指定する。少なくとも前者のみを指定していれば良い。
+
+### -target_module
+Fuzzingの対象を指定する。当然、今回の場合は```Jw_win.exe```を指定する。
+
+### -target_offset
+対象アプリケーション内のサブルーチン（関数、メソッド）の先頭アドレスを指定する。この値の策定方法は簡単ではないため、別に詳しく説明する。今回の場合は、```0x0283448```を指定する。
+
+### -fuzz_iterations
+Fuzzingを高速に実行するために、WinAFLは```-target_offset```で指定した関数で一度スナップショット（レジスタやスタックの値を保存）を撮り、各実行毎にリセットをしてこの地点から実行することで、プロセスを実行毎に丸ごと最初から再起動しなくても良いように工夫されている。しかしながら、完璧にスナップショットを撮っている訳でないため、実行回数が増えるにつれてプロセス内部のメモリ等の中身が変化してしまい、やがて正常に動作しなくなる。
+
+そこで、一定回数の実行毎に動作を最初からリセットさせることで、安定的に動作できるようにしている。```-fuzz_iterations```では、このリセットを実施するまでの回数を指定する。この値は小さい方が動作が安定し、大きくすることで動作を高速化できる。適切な値を事前に決定することは困難であり、解析対象のアプリケーションに依存する。今回は10,000回を採用する。
+
+### -nargs
+```-target_offset```で指定した関数の引数の数を指定する。Ghidra等で解析するのが早いが、デバッガを用いて逆アセンブリにより解析する方が確実である。
+
+### -call_convention
+```-target_offset```で指定した関数の呼び出し規則を指定する。関数は、一般的に呼び出し規則に応じて戻り値の渡し方等、動作が異なる。そこで、正しい呼び出し規則を指定しないと、スナップショットを元に繰り返し実行することができない。関数の呼び出し規則を調べる方法は多数あるが、Ghidraを使用するのが簡単で良い。各種関数呼び出し規則については、リバースエンジニアリングを行う上で必須の知識なので、この際にしっかりと学ぶべきである。尚、今回の場合は```thiscall```を指定する。
+
+関数呼び出し規則の良い資料があったので、後で追記する。
 
 ## Fuzzingの実施
 

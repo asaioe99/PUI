@@ -688,27 +688,6 @@ WinAFLのソースコード修正に並ぶ難易度であるのが、```-target_
 ```
 0:000> k
  # ChildEBP RetAddr      
-00 001996dc 007ba8fb     KERNEL32!CreateFileW
-WARNING: Stack unwind information not available. Following frames may be wrong.
-01 00199744 007b3cce     Jw_win+0x3ba8fb
-02 00199770 007b3c3f     Jw_win+0x3b3cce
-03 001997c8 007b3cfb     Jw_win+0x3b3c3f
-04 001997e8 007a9397     Jw_win+0x3b3cfb
-05 00199818 0079684b     Jw_win+0x3a9397
-06 0019985c 00796885     Jw_win+0x39684b
-07 00199870 0048afe6     Jw_win+0x396885
-08 0019ff08 0040174a     Jw_win+0x8afe6
-09 0019ff20 0079ebdb     Jw_win+0x174a
-0a 0019ff30 0079bacf     Jw_win+0x39ebdb
-0b 0019ff70 75d7fa29     Jw_win+0x39bacf
-0c 0019ff80 77657a7e     KERNEL32!BaseThreadInitThunk+0x19
-0d 0019ffdc 77657a4e     ntdll!__RtlUserThreadStart+0x2f
-0e 0019ffec 00000000     ntdll!_RtlUserThreadStart+0x1b
-```
-
-```
-0:000> k
- # ChildEBP RetAddr      
 00 0018a398 007ba8fb     KERNEL32!CreateFileW
 WARNING: Stack unwind information not available. Following frames may be wrong.
 01 0018a400 007b3cce     Jw_win+0x3ba8fb
@@ -733,6 +712,7 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 14 0019ffdc 77657a4e     ntdll!__RtlUserThreadStart+0x2f
 15 0019ffec 00000000     ntdll!_RtlUserThreadStart+0x1b
 ```
+４回（後でちゃんと確かめる）```g```及び```k```コマンドを実施すると、上記の様なスタックトレースになる。また、同様に```CloseHandl```にブレークポイントを設置し、２回（確かめる）実行すると、
 
 ```
 0:000> k
@@ -753,6 +733,63 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 0c 0019ffdc 77657a4e     ntdll!__RtlUserThreadStart+0x2f
 0d 0019ffec 00000000     ntdll!_RtlUserThreadStart+0x1b
 ```
+
+となる。
+
+```0068b9d9```はスタック上のリターンアドレスであるが、以下のアセンブリコードを見ると、
+
+```
+0068b9c9 8945ec          mov     dword ptr [ebp-14h],eax
+0068b9cc ff5264          call    dword ptr [edx+64h]
+0068b9cf 8b17            mov     edx,dword ptr [edi]
+0068b9d1 8bcf            mov     ecx,edi
+0068b9d3 ff7508          push    dword ptr [ebp+8]
+0068b9d6 ff527c          call    dword ptr [edx+7Ch]
+0068b9d9 85c0            test    eax,eax
+0068b9db 7548            jne     Jw_win+0x28ba25 (0068ba25)
+0068b9dd 3945f0          cmp     dword ptr [ebp-10h],eax
+0068b9e0 7409            je      Jw_win+0x28b9eb (0068b9eb)
+0068b9e2 8b03            mov     eax,dword ptr [ebx]
+0068b9e4 8bcb            mov     ecx,ebx
+0068b9e6 ff5060          call    dword ptr [eax+60h]
+0068b9e9 eb29            jmp     Jw_win+0x28ba14 (0068ba14)
+0068b9eb 8b07            mov     eax,dword ptr [edi]
+0068b9ed 8bcf            mov     ecx,edi
+0068b9ef ff5060          call    dword ptr [eax+60h]
+0068b9f2 85c0            test    eax,eax
+0068b9f4 750c            jne     Jw_win+0x28ba02 (0068ba02)
+0068b9f6 8b07            mov     eax,dword ptr [edi]
+0068b9f8 8bcf            mov     ecx,edi
+0068b9fa ff75ec          push    dword ptr [ebp-14h]
+```
+
+直前の```0068b9d6 ff527c          call    dword ptr [edx+7Ch]```に対してブレークポイントを設置し、ステップイン実行をかければ良いことが分かる。
+
+```
+00683445 40              inc     eax
+00683446 5e              pop     esi
+00683447 c3              ret
+00683448 6a68            push    68h
+0068344a b85d157e00      mov     eax,offset Jw_win+0x3e155d (007e155d)
+0068344f e8ca871100      call    Jw_win+0x39bc1e (0079bc1e)
+00683454 8bf9            mov     edi,ecx
+00683456 897de0          mov     dword ptr [ebp-20h],edi
+00683459 8b5d08          mov     ebx,dword ptr [ebp+8]
+0068345c 33c0            xor     eax,eax
+0068345e 85db            test    ebx,ebx
+00683460 0f95c0          setne   al
+00683463 85c0            test    eax,eax
+00683465 7505            jne     Jw_win+0x28346c (0068346c)
+00683467 e84877feff      call    Jw_win+0x26abb4 (0066abb4)
+0068346c 6a14            push    14h
+0068346e e87076feff      call    Jw_win+0x26aae3 (0066aae3)
+00683473 59              pop     ecx
+00683474 8945e4          mov     dword ptr [ebp-1Ch],eax
+00683477 33c9            xor     ecx,ecx
+00683479 894dfc          mov     dword ptr [ebp-4],ecx
+```
+
+結果、上記の様に```00683448 6a68            push    68h```に処理が移る。これが目的関数のアドレスの候補になる。
 
 ## Fuzzingの実施
 これまでに解説した通りに、```afl-fuzz```の実行コマンドは３つの部分で構成されている。各部分を適切に設定できたのなら、それらを```--```により結合する。今回の場合は以下の通りになる筈である。

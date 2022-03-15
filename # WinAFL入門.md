@@ -791,6 +791,17 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 
 結果、上記の様に```00683448 6a68            push    68h```に処理が移る。これが目的関数のアドレスの候補になる。
 
+ここで重要なのは、この目的関数の呼び出し規則である。これは、```-call_convention```で指定する必要がある。指定可能な組み合わせは以下の通りである。
+
+- fastcall: fastcall
+- ms64: Microsoft x64 (Visual Studio)
+- stdcall: cdecl or stdcall
+- thiscall: thiscall
+
+呼び出し規則を確定する最も簡単な方法は、Ghidraにより該当アドレスの関数を調べることである。また、関数呼び出し規則については以下の文献が詳しい。
+
+[x86/x86_64関数呼び出しチートシート](https://raw.githubusercontent.com/sunnyone/docs/b2eab54f60bf6295ceda470e1cb400fd6764dd43/x86-x86-64-function-cheat-sheet/x86-x86-64-function-cheat-sheet.pdf)
+
 ## Fuzzingの実施
 これまでに解説した通りに、```afl-fuzz```の実行コマンドは３つの部分で構成されている。各部分を適切に設定できたのなら、それらを```--```により結合する。今回の場合は以下の通りになる筈である。
 
@@ -904,14 +915,44 @@ WinDBGには従来のものと、2017年以来公表されているPreview版が
 
 画像　windbg
 
-### WinDBGの操作法
+### WinDBG Preview版の操作法
 これまでにIDA等の商用デバッガを使用した経験のある者もいるだろうが、これと比較するとWinDBGは硬派な使用感である。基本的にはコマンドラインにより操作する必要があり、覚えることも少なからずある。本解説の目的は、Windowsアプリケーションに対するFuzzingを最低限一通り体験することであって、デバッガの詳細な使用方法や理論については触れない。
 
 ### プロセスの起動
-WinDBG Preview版であれば、Time Travel Debugging機能が便利である。これは、プロセスの実行を記録し、自由に実行ステップを魚ぼって様々な検証を行うことができる。これにより、クラッシュした時点からレジスタやスタック内部の値を観察することができるため、従来の方法よりも短時間で解析を進めることができる。業務としてFuzzingを行うのであれば、この機能を使わない手はない。
+WinDBG Preview版であれば、Time Travel Debugging（TTD）機能が便利である。これは、プロセスの実行を記録し、自由に実行ステップを魚ぼって様々な検証を行うことができる。これにより、クラッシュした時点からレジスタやスタック内部の値を観察することができるため、従来の方法よりも短時間で解析を進めることができる。業務としてFuzzingを行うのであれば、この機能を使わない手はない。
 
 画像 windbg1
 
 まずは、```FIle```→```Start debugging```→```Launche executable(advanced)```を選択し、画像の通り、```Executable```と```Aruguments```を指定する。```Arguments```には、これまでのFuzzingで発見した```output```→```craches```フォルダ内のクラッシュファイルを指定する。準備が完了したら、```Record with Time Travel Dubugging```にチェックを入れ、```Configure and Record```をクリックする。その後、記録ファイルの保存場所を尋ねられるので、適切に指定し```Record```を押下する。
 
-###
+### クラッシュ地点の確認
+デバッグを開始したら、以下の様に自動的に```INT 3```によりブレークされることになる。今回はクラッシュする瞬間を確認するのが目的なので、```g```コマンドによりそのまま実行を継続させる。
+
+画像：windbg2
+
+また、この状態で```k```コマンドを使用すると、スタックのバックトレースを確認できる。
+
+```
+0:000> k
+ # ChildEBP RetAddr      
+WARNING: Stack unwind information not available. Following frames may be wrong.
+00 000dac04 004f66a8     Jw_win+0xecda2
+01 001927b8 00489eb7     Jw_win+0xf66a8
+02 00199024 0068355e     Jw_win+0x89eb7
+03 001990b4 0068b9d9     Jw_win+0x28355e
+04 001990e4 006a04d4     Jw_win+0x28b9d9
+05 00199424 006a0301     Jw_win+0x2a04d4
+06 00199434 0049967e     Jw_win+0x2a0301
+07 0019fa58 0068ae55     Jw_win+0x9967e
+08 0019fa80 00490c0c     Jw_win+0x28ae55
+09 0019ff10 007bcfe4     Jw_win+0x90c0c
+0a 0019ff24 0079baee     Jw_win+0x3bcfe4
+0b 0019ff70 75d7fa29     Jw_win+0x39baee
+0c 0019ff80 77657a7e     KERNEL32!BaseThreadInitThunk+0x19
+0d 0019ffdc 77657a4e     ntdll!__RtlUserThreadStart+0x2f
+0e 0019ffec 00000000     ntdll!_RtlUserThreadStart+0x1b
+```
+
+ここからが、本当の意味で本題である。しかしながら、なぜこの様なアクセス違反が発生したのか、本質的な意味でその原因を追うのは困難な作業である。ましてこの脆弱性の原因を完璧に理解し、それによりRCEを成し遂げる様なExploitコードを作成するのは至難の業であり、多くの技術を学ぶ必要がある。
+
+果てしない道のりだが、脆弱性の原因についてそれを調べる困難な作業を少しでも楽に行うためにTime Travel Debugging機能がある。使用できる機能は様々だが、最も分かりやすい方法は、```p```であれば```p-```、```g```であれば```g-```の様に、マイナスを付ければ逆向きに実行できる。

@@ -367,7 +367,7 @@ $ cmake --build . --config Release
 
 WinAFLのダウンロードは、[こちら](https://github.com/googleprojectzero/winafl)で、code → Download ZIP を選択すれば良い。
 
-画像：winaflgit
+![winaflgit](https://user-images.githubusercontent.com/77034428/158393391-5c3dcf4b-a424-47e4-849e-0d1556e65eb4.jpg)
 
 念のために、上記コマンドの主要な手順を順に示すと、
 
@@ -375,13 +375,13 @@ WinAFLのダウンロードは、[こちら](https://github.com/googleprojectzer
 C:\winafl\build32>cmake -G"Visual Studio 15 2017" .. -DDynamoRIO_DIR=C:\DynamoRIO8.0.18460\cmake
 ```
 
-画像：cmake1
+![cmake1](https://user-images.githubusercontent.com/77034428/158393299-ff23c80e-4725-44e5-850c-6e039047cc69.jpg)
 
 ```
 C:\winafl\build32>cmake --build . --config Release
 ```
 
-画像：cmake2
+![cmake2](https://user-images.githubusercontent.com/77034428/158393251-7a0f935a-6180-4ca3-beab-2f9defc1ae42.jpg)
 
 となる。
 
@@ -677,11 +677,11 @@ WinAFLのソースコード修正に並ぶ難易度であるのが、```-target_
 
 まずは、画像の通りにJWCADとそれに読み込ませるファイルを指定してデバッグを開始する。
 
-画像：target_fun1
+![target_fun1](https://user-images.githubusercontent.com/77034428/158392977-e98a58bd-9ea0-4bd6-b007-221fdbc8a975.jpg)
 
 まずは、```lm```コマンドにより、使用されているモジュール（dll）の一覧を取得する。```CreateFile```及び```CloseHandle```を擁する```KERNEL32```の存在を確認することができたと思う。
 
-画像：target_fun2
+![target_fun2](https://user-images.githubusercontent.com/77034428/158392999-5217cc43-11f9-486c-94ed-36436ed842c9.jpg)
 
 次に、```CreateFileW```及び```CloseHandle```の両方の関数呼び出しに対して```bu```コマンドでブレークポイントを設置し、順に```k```コマンドによりスタックのバックトレースを確認する。
 
@@ -814,7 +814,7 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 ### 実行時の画面
 ```afl-fuzz.exe```を無事に実行すると、以下の様な画面が表示される。
 
-画像aflfuzz1
+![aflfuzz1](https://user-images.githubusercontent.com/77034428/158392793-b7c7a492-546d-476a-adb6-aed0e3aec1cc.jpg)
 
 各項目について順に説明する。
 
@@ -913,7 +913,7 @@ Fuzzingを実行し、いくつかのクラッシュファイルが入手出来�
 ### WinDBGの準備
 WinDBGには従来のものと、2017年以来公表されているPreview版がある。Preview版は依然開発途中であり、度々機能強化が行われているが、これまでのものと比較して、GUIとしての機能強化がなされている。しかしながら、Microsoft Storeでのダウンロードのみ対応しているため、スタンドアロン端末では利用できない。旧バージョンのものは、Windows SDKの一部として公開されており、ISOファイルとしてスタンドアロン端末にもインストールすることができる。
 
-画像　windbg
+![windbg](https://user-images.githubusercontent.com/77034428/158392647-733b40bd-a76b-4a6b-8d90-b8589e350a7c.jpg)
 
 ### WinDBG Preview版の操作法
 これまでにIDA等の商用デバッガを使用した経験のある者もいるだろうが、これと比較するとWinDBGは硬派な使用感である。基本的にはコマンドラインにより操作する必要があり、覚えることも少なからずある。本解説の目的は、Windowsアプリケーションに対するFuzzingを最低限一通り体験することであって、デバッガの詳細な使用方法や理論については触れない。
@@ -921,14 +921,14 @@ WinDBGには従来のものと、2017年以来公表されているPreview版が
 ### プロセスの起動
 WinDBG Preview版であれば、Time Travel Debugging（TTD）機能が便利である。これは、プロセスの実行を記録し、自由に実行ステップを魚ぼって様々な検証を行うことができる。これにより、クラッシュした時点からレジスタやスタック内部の値を観察することができるため、従来の方法よりも短時間で解析を進めることができる。業務としてFuzzingを行うのであれば、この機能を使わない手はない。
 
-画像 windbg1
+![windbg1](https://user-images.githubusercontent.com/77034428/158392560-35c4d048-0c67-4a48-af86-b8a6f01e1ef2.jpg)
 
 まずは、```FIle```→```Start debugging```→```Launche executable(advanced)```を選択し、画像の通り、```Executable```と```Aruguments```を指定する。```Arguments```には、これまでのFuzzingで発見した```output```→```craches```フォルダ内のクラッシュファイルを指定する。準備が完了したら、```Record with Time Travel Dubugging```にチェックを入れ、```Configure and Record```をクリックする。その後、記録ファイルの保存場所を尋ねられるので、適切に指定し```Record```を押下する。
 
 ### クラッシュ地点の確認
 デバッグを開始したら、以下の様に自動的に```INT 3```によりブレークされることになる。今回はクラッシュする瞬間を確認するのが目的なので、```g```コマンドによりそのまま実行を継続させる。
 
-画像：windbg2
+![windbg2](https://user-images.githubusercontent.com/77034428/158392463-e41e005c-6ad7-4942-ac46-5091a750d4b1.jpg)
 
 また、この状態で```k```コマンドを使用すると、スタックのバックトレースを確認できる。
 

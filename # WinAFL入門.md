@@ -544,15 +544,15 @@ afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
 ```
 -i dir        - テストケース用のinputディレクトリを指定
 -o dir        - fuzzerが発見したファイルを格納するoutputディレクトリを指定
--t msec       - timeout for each run
+-t msec       - 各実行単位（run）の制限時間（これを短く設定し過ぎると、toutが多発するので注意）
 -s            - deliver sample via shared memory
 -D dir        - directory containing DynamoRIO binaries (drrun, drconfig)
--w path       - path to winafl.dll
+-w path       - winafl.dllのパスの指定（通常はafl-fuzz.exeと同じディレクトリにあるので指定不要）
 -e            - expert mode to run WinAFL as a DynamoRIO tool
--P            - use Intel PT tracing mode
+-P            - Intel PT トラッキングモードを使用（CPUがIntel PTに対応している必要がある）
 -Y            - enable the static instrumentation mode
--f file       - location read by the fuzzed program
--m limit      - memory limit for the target process
+-f file       - 対称が読み込むファイル（動作に最中にあれば）のディレクトリのパスを指定
+-m limit      - 対象のプロセスが使用するメモリの上限指定
 -p            - persist DynamoRIO cache across target process restarts
 -c cpu        - the CPU to run the fuzzed program
 -d            - quick & dirty mode (skips deterministic steps)

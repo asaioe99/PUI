@@ -899,7 +899,7 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 
 各項目について順に説明する。
 
-画像；process timing
+![process_timing](https://user-images.githubusercontent.com/77034428/159189018-67995e20-d775-4605-8e07-943d1ff93c12.PNG)
 
 |process timing|時刻情報|
 |:---|:---|
@@ -907,6 +907,19 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 |last new path|新しいpath（カバレッジを拡大するような新しい実行経路を含むテストケースのこと）を発見してからの経過時間|
 |last uniq crash|新しいcrashファイル発見からの経過時間|
 |last uniq hang|新しいhangファイル発見からの経過時間|
+
+これらの項目は全て、何らかの経過時間を表示している。大抵の場合、Fuzzingは数日から数週間、更に数か月を要することもある。また、last new pathが開始後数分しても表示されない場合、何らかの原因で正常に動作していない。その場合、時刻情報の代わりに```none yet  (odd, check syntax!)```という警告が表示される。
+
+![overall_results](https://user-images.githubusercontent.com/77034428/159190184-40b90897-853a-49bb-abc7-589528d02b15.PNG)
+
+|overall results|総合結果|
+|:---|:---|
+|cycles done|サイクル完了数|
+|total paths|合計パス|
+|uniq crashes|ユニーククラッシュ|
+|uniq hangs|ユニークハング|
+
+cycles doneは、それまでに発見された興味深いテストケース全てを実行した回数である。もし、この値が0であれば、Fuzzerは依然として全テストケースを終了していないのであり、少なくとも一度は終了させるべきである。また、最初の１回を終了させるには通常数日は要する。
 
 |cycle progress|サイクル進捗状況|
 |:---|:---|
@@ -929,13 +942,6 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 |dictionary|辞書|
 |havoc|複合|
 |trim||
-
-|overall results|総合結果|
-|:---|:---|
-|cycles done|サイクル完了数|
-|total paths|合計パス|
-|uniq crashes|ユニーククラッシュ|
-|uniq hangs|ユニークハング|
 
 |map coverage|マップカバレッジ|
 |:---|:---|

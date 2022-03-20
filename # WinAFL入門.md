@@ -921,10 +921,14 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 
 cycles doneは、それまでに発見された興味深いテストケース全てを実行した回数である。もし、この値が0であれば、Fuzzerは依然として全テストケースを終了していないのであり、少なくとも一度は終了させるべきである。また、最初の１回を終了させるには通常数日は要する。
 
+![cycle_progress](https://user-images.githubusercontent.com/77034428/159190780-64450347-ad70-49dc-b45e-e96917ff2283.PNG)
+
 |cycle progress|サイクル進捗状況|
 |:---|:---|
 |now processing|現進捗状況|
-|paths timed out||
+|paths timed out|不明（記述なし？）|
+
+now processingは、現在のqueueサイクルの進捗状況である。この進捗が遅い場合は、```-d```オプションの仕様を検討するか、より高性能な計算機を用意すべきである。
 
 |stage progress|ステージ進捗状況|
 |:---|:---|

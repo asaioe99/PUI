@@ -899,6 +899,8 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 
 各項目について順に説明する。
 
+画像；process timing
+
 |process timing|時刻情報|
 |:---|:---|
 |run time|実行開始からの経過時間|

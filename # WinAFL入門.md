@@ -900,10 +900,15 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 各項目について順に説明する。
 
   +----------------------------------------------------+
+  
   |        run time : 0 days, 8 hrs, 32 min, 43 sec    |
+  
   |   last new path : 0 days, 0 hrs, 6 min, 40 sec     |
+  
   | last uniq crash : none seen yet                    |
+  
   |  last uniq hang : 0 days, 1 hrs, 24 min, 32 sec    |
+  
   +----------------------------------------------------+
 
 |process timing|時刻情報|

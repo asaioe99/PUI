@@ -755,7 +755,7 @@ WARNING: Stack unwind information not available. Following frames may be wrong.
 14 0019ffdc 77657a4e     ntdll!__RtlUserThreadStart+0x2f
 15 0019ffec 00000000     ntdll!_RtlUserThreadStart+0x1b
 ```
-４回（後でちゃんと確かめる）```g```及び```k```コマンドを実施すると、上記の様なスタックトレースになる。また、同様に```CloseHandl```にブレークポイントを設置し、２回（確かめる）実行すると、
+４回（注：後でちゃんと確かめる）```g```及び```k```コマンドを実施すると、上記の様なスタックトレースになる。また、同様に```CloseHandl```にブレークポイントを設置し、２回（注：これも確かめる）実行すると、
 
 ```
 0:000> k

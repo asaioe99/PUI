@@ -904,9 +904,9 @@ afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 100
 |process timing|時刻情報|
 |:---|:---|
 |run time|実行開始からの経過時間|
-|last new path||
-|last uniq crash|新種のcrashファイル発見からの経過時間|
-|last uniq hang|新種のhangファイル発見からの経過時間|
+|last new path|新しいpath（カバレッジを拡大するような新しい実行経路を含むテストケースのこと）を発見してからの経過時間|
+|last uniq crash|新しいcrashファイル発見からの経過時間|
+|last uniq hang|新しいhangファイル発見からの経過時間|
 
 |cycle progress|サイクル進捗状況|
 |:---|:---|

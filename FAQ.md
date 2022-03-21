@@ -2,6 +2,54 @@
 
 ## DynamoRioについて
 
+### CreateWindowEXをdrwrap_replace()で置き換える場合について
+以下の様な場合を考えます。
+
+```
+if (_stricmp(module_name, "USER32.dll") == 0) {
+	to_wrap = (app_pc)dr_get_proc_address(info->handle, "CreateWindowEX");
+	drwrap_replace(to_wrap, (app_pc)CreateWindowEX_interceptor, NULL);
+}
+
+static HWND
+CreateWindowEX_interceptor(
+  DWORD     dwExStyle,
+  LPCSTR    lpClassName,
+  LPCSTR    lpWindowName,
+  DWORD     dwStyle,
+  int       X,
+  int       Y,
+  int       nWidth,
+  int       nHeight,
+  HWND      hWndParent,
+  HMENU     hMenu,
+  HINSTANCE hInstance,
+  LPVOID    lpParam)
+{
+	if (lpClassNameはTOOLTIPS) return 適当な戻り値;
+  return CreateWindowEX(
+    DWORD     dwExStyle,
+    LPCSTR    lpClassName,
+    LPCSTR    lpWindowName,
+    DWORD     dwStyle,
+    int       X,
+    int       Y,
+    int       nWidth,
+    int       nHeight,
+    HWND      hWndParent,
+    HMENU     hMenu,
+    HINSTANCE hInstance,
+    LPVOID    lpParam);
+}
+```
+#### 原因
+省略
+
+#### 解決方法
+不明
+
+この様な場合、CreateWindowEX_interceptor内部のCreateWindowEX呼び出しに対しても、drwrap_replaceが影響してしまい、再帰的無限ループに陥りそうである。
+
 ## WinAFLについて
 ### trimに時間が掛かる
 winAFL実行開始からbitflip戦略を開始するまでの間に、先だってtrimが実施される。この際、10分ほど時間を要することがあった。この時のexec speedは1/sec未満である。終了後のexec speedは正常である。

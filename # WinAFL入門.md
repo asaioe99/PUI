@@ -548,7 +548,7 @@ afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
 
 翻訳や加筆は後でやる。訳語はどこかで固定したい。
 
-```[afl options]```
+#### [afl options]
 ```
 -i dir        - テストケース用のinputディレクトリを指定
 -o dir        - fuzzerが発見したファイルを格納するoutputディレクトリを指定
@@ -562,13 +562,13 @@ afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
 -f file       - 対称が読み込むファイル（動作に最中にあれば）のディレクトリのパスを指定
 -m limit      - 対象のプロセスが使用するメモリの上限指定
 -p            - persist DynamoRIO cache across target process restarts
--c cpu        - the CPU to run the fuzzed program
+-c cpu        - 使用するCPUの指定
 -d            - quick & dirty mode (skips deterministic steps)
 -n            - fuzz without instrumentation (dumb mode)
 -x dir        - optional fuzzer dictionary
 -I msec       - timeout for process initialization and first run
 -T text       - text banner to show on the screen
--M \\ -S id   - distributed mode
+-M \\ -S id   - 分散処理モード（詳細は後述）
 -C            - crash exploration mode (the peruvian rabbit thing)
 -l path       - a path to user-defined DLL for custom test cases processing
 -A module     - a module identifying a unique process to attach to
@@ -578,8 +578,8 @@ afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
 ```
 -covtype         - the type of coverage being recorded. Supported options are
                    bb (basic block, default) or edge.
--coverage_module - module for which to record coverage. Multiple module flags
-                   are supported.
+-coverage_module - カバレッジを計測する対象の指定 複数のモジュールを指定可能
+                   例：exeに加えてdllを追加指定
 -target_module   - module which contains the target function to be fuzzed.
                    Either -target_method or -target_offset need to be
                    specified together with this option.
@@ -590,8 +590,7 @@ afl-fuzz [afl options] -- [instrumentation options] -- target_cmd_line
 -target_offset   - offset of the method to fuzz from the start of the module.
 -fuzz_iterations - Maximum number of iterations for the target function to run
                    before restarting the target process.
--nargs           - Number of arguments the fuzzed method takes. This is used
-                   to save/restore the arguments between runs.
+-nargs           - 目的関数の引数の数を指定　この引数は保存され、各実行毎に使用される
 -call_convention - The default calling convention is cdecl on 32-bit x86
                    platforms and Microsoft x64 for Visual Studio 64-bit
                    applications. Possible values:

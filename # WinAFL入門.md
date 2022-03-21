@@ -930,12 +930,43 @@ cycles doneは、それまでに発見された興味深いテストケース全
 
 now processingは、現在のqueueサイクルの進捗状況である。この進捗が遅い場合は、```-d```オプションの仕様を検討するか、より高性能な計算機を用意すべきである。
 
+画像：未作成
+
+|map coverage|マップカバレッジ|
+|:---|:---|
+|map density|不明|
+|count coverage|不明|
+
+map densityが200以下の場合、以下の可能性があるため注意が必要である。
+
+- 対象のアプリケーションが極端に単純である
+- 適切に計装されていない（target library以外で処理が行われている）
+- 入力が与えられてすぐにプログラムが停止している
+
+また、パーセントが70%を超えることは、テンプレート化されたコードで成り立つ複雑なアプリケーションでは滅多に起こらない。
+
+以降、未翻訳部分
+
+    Because high bitmap density makes it harder for the fuzzer to reliablydiscern new program states, I recommend recompiling the binary withAFL_INST_RATIO=10 or so and trying again (see env_variables.txt).
+
+    The fuzzer will flag high percentages in red. Chances are, you will neversee that unless you're fuzzing extremely hairy software (say, v8, perl,ffmpeg).
+
+The other line deals with the variability in tuple hit counts seen in thebinary. In essence, if every taken branch is always taken a fixed number of
+times for all the inputs we have tried, this will read "1.00". As we manageto trigger other hit counts for every branch, the needle will start to move
+toward "8.00" (every bit in the 8-bit map hit), but will probably neverreach that extreme.
+
+Together, the values can be useful for comparing the coverage of severaldifferent fuzzing jobs that rely on the same instrumented binary.
+
+ここまで
+
 |stage progress|ステージ進捗状況|
 |:---|:---|
 |now truing|現選択戦略|
 |stage execs|現戦略実行回数|
 |total execs|総実行回数|
 |execs speed|実行速度|
+
+
 
 |fuzzng strategy yields|Fuzzing戦略収率表|
 |:---|:---|
@@ -946,11 +977,6 @@ now processingは、現在のqueueサイクルの進捗状況である。この�
 |dictionary|辞書|
 |havoc|複合|
 |trim||
-
-|map coverage|マップカバレッジ|
-|:---|:---|
-|map density|現進捗状況|
-|count coverage||
 
 |findings in depth||
 |:---|:---|

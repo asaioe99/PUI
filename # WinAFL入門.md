@@ -947,9 +947,9 @@ map densityが200以下の場合、以下の可能性があるため注意が必
 
 以降、未翻訳部分
 
-    Because high bitmap density makes it harder for the fuzzer to reliablydiscern new program states, I recommend recompiling the binary withAFL_INST_RATIO=10 or so and trying again (see env_variables.txt).
+Because high bitmap density makes it harder for the fuzzer to reliablydiscern new program states, I recommend recompiling the binary withAFL_INST_RATIO=10 or so and trying again (see env_variables.txt).
 
-    The fuzzer will flag high percentages in red. Chances are, you will neversee that unless you're fuzzing extremely hairy software (say, v8, perl,ffmpeg).
+The fuzzer will flag high percentages in red. Chances are, you will neversee that unless you're fuzzing extremely hairy software (say, v8, perl,ffmpeg).
 
 The other line deals with the variability in tuple hit counts seen in thebinary. In essence, if every taken branch is always taken a fixed number of
 times for all the inputs we have tried, this will read "1.00". As we manageto trigger other hit counts for every branch, the needle will start to move

@@ -35,3 +35,108 @@ HANDLE CreateFileA(
 
 ## JWCADの場合
 Jw_cadの最新版 Version 8.25(2022/04/04)が出たので、これをFuzzingすることを考える。
+
+実行コマンドは以下の通りである。
+```
+jw_win.exe Test1.exe
+```
+
+### CreateFileの特定
+以下の通りにブレークポイントを設定する。
+
+```
+0:000> bu KERNEL32!CreateFileA
+0:000> bu KERNEL32!CreateFileW
+```
+
+そして```g```コマンドを実行して処理を進める。
+
+```
+0:000> g
+ModLoad: 76370000 763cf000   C:\Windows\SysWOW64\bcryptPrimitives.dll
+ModLoad: 753b0000 753bf000   C:\Windows\SysWOW64\kernel.appcore.dll
+ModLoad: 77d60000 77dde000   C:\Windows\SysWOW64\clbcatq.dll
+ModLoad: 69b00000 69c71000   C:\Windows\SysWOW64\windowscodecs.dll
+ModLoad: 75cc0000 75cd9000   C:\Windows\SysWOW64\bcrypt.dll
+Breakpoint 1 hit
+eax=00000080 ebx=00199758 ecx=00000000 edx=00000000 esi=00199658 edi=0019961c
+eip=774b3140 esp=001995d4 ebp=001995f4 iopl=0         nv up ei pl nz na po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00200202
+KERNEL32!CreateFileW:
+774b3140 ff25d00f5177    jmp     dword ptr [KERNEL32!_imp__CreateFileW (77510fd0)] ds:002b:77510fd0={KERNELBASE!CreateFileW (76ec03d0)}
+```
+
+続けて```kb```コマンドでスタックフレームを確認する。
+
+```
+0:000> kb
+ # ChildEBP RetAddr      Args to Child              
+00 001995f4 008e2493     00d13640 00199658 00000080 KERNEL32!CreateFileW
+WARNING: Stack unwind information not available. Following frames may be wrong.
+01 00199670 008e23b1     001996e4 00199758 00d13640 Jw_win+0x4e2493
+02 001996b0 008e1df6     001996e4 00199758 00d12ef8 Jw_win+0x4e23b1
+03 00199704 008e23e5     00d12ef8 00004000 00000040 Jw_win+0x4e1df6
+04 00199724 008d3091     00199758 00d12ef8 00004000 Jw_win+0x4e23e5
+05 0019975c 008c5376     00d12ef8 0091cea0 00000040 Jw_win+0x4d3091
+06 001997a4 008c53c8     00d12ef8 0091cea0 00000040 Jw_win+0x4c5376
+07 001997b8 004c6ecf     00d12ef8 0091cea0 9fb08611 Jw_win+0x4c53c8
+08 0019ff14 00401ded     0019ff2c 008ce84a 008b65a3 Jw_win+0xc6ecf
+09 0019ff1c 008ce84a     008b65a3 008b65a3 0019ff70 Jw_win+0x1ded
+0a 0019ff2c 008b64a3     00916b1c 0091711c 9fb08675 Jw_win+0x4ce84a
+0b 0019ff70 774afa29     003d8000 774afa10 0019ffdc Jw_win+0x4b64a3
+0c 0019ff80 77e57a7e     003d8000 3bc5916b 00000000 KERNEL32!BaseThreadInitThunk+0x19
+0d 0019ffdc 77e57a4e     ffffffff 77e78a26 00000000 ntdll!__RtlUserThreadStart+0x2f
+0e 0019ffec 00000000     008b65a3 003d8000 00000000 ntdll!_RtlUserThreadStart+0x1b
+```
+
+第一引数を確認する。
+
+```
+0:000> du 00d13640
+00d13640  "C:\jww2\view_speed.exe"
+```
+
+残念ながら違うみたいである。
+
+同様に何回か解析を進めると、
+
+```
+0:000> g
+ModLoad: 10000000 1038b000   C:\jww2\common_lib.dll
+ModLoad: 03f00000 04332000   C:\jww2\common_lib_AP202.dll
+ModLoad: 03f00000 04332000   C:\jww2\common_lib_AP202.dll
+ModLoad: 76290000 76364000   C:\Windows\SysWOW64\MSCTF.dll
+ModLoad: 69c80000 69d14000   C:\Windows\SysWOW64\TextShaping.dll
+Breakpoint 0 hit
+eax=00198a40 ebx=00000000 ecx=00000003 edx=00000001 esi=00199128 edi=00d5fed0
+eip=774b3130 esp=00198a14 ebp=00198b60 iopl=0         nv up ei pl zr na pe nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00200246
+KERNEL32!CreateFileA:
+774b3130 ff25d40f5177    jmp     dword ptr [KERNEL32!_imp__CreateFileA (77510fd4)] ds:002b:77510fd4={KERNELBASE!CreateFileA (76eda890)}
+0:000> kb
+ # ChildEBP RetAddr      Args to Child              
+00 00198b60 00788088     00199128 00000020 00d21f30 KERNEL32!CreateFileA
+WARNING: Stack unwind information not available. Following frames may be wrong.
+01 00198de8 00787111     00199128 00000020 00d21f30 Jw_win+0x388088
+02 00198e1c 00787948     00199128 00000020 00d21f30 Jw_win+0x387111
+03 00198eb4 00790cba     00199128 9fb0f7e9 00000000 Jw_win+0x387948
+04 00198eec 007a9102     00199128 00000001 00000001 Jw_win+0x390cba
+05 00199230 007a8edc     00d21f00 00000001 00d20b50 Jw_win+0x3a9102
+06 00199248 007904c3     00d21f00 009ba718 004da270 Jw_win+0x3a8edc
+07 0019925c 004dab57     00d21f00 9fb080d5 00000000 Jw_win+0x3904c3
+08 0019f9d0 0078ff12     00d21f00 9fb08305 009ba718 Jw_win+0xdab57
+09 0019fa00 004d099a     0019fa10 9fb08609 0093d3f8 Jw_win+0x38ff12
+0a 0019ff0c 008e42fe     00000000 0000000a 003d8000 Jw_win+0xd099a
+0b 0019ff24 008b651f     00400000 00000000 00cd4eeb Jw_win+0x4e42fe
+0c 0019ff70 774afa29     003d8000 774afa10 0019ffdc Jw_win+0x4b651f
+0d 0019ff80 77e57a7e     003d8000 3bc5916b 00000000 KERNEL32!BaseThreadInitThunk+0x19
+0e 0019ffdc 77e57a4e     ffffffff 77e78a26 00000000 ntdll!__RtlUserThreadStart+0x2f
+0f 0019ffec 00000000     008b65a3 003d8000 00000000 ntdll!_RtlUserThreadStart+0x1b
+```
+
+上記の様にブレークするので、第一引数を確認すると、
+
+```
+0:000> da 00199128
+00199128  "C:\jww2\Test1.jww
+```

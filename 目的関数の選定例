@@ -1,0 +1,37 @@
+# 目的関数の選び方
+正直なところ、確実な方法が分からないので自分なりにどうやって決めているかを説明する。基本戦略は、ファイルを入力する場合であればCreateFile及びそれに対応するCloseHandleの両関数を含む呼び出し元の関数だ。
+
+
+## CreateFileW/Aについて
+以下の例の通りである。
+
+```C:CreateFileW
+HANDLE CreateFileW(
+  [in]           LPCWSTR               lpFileName,
+  [in]           DWORD                 dwDesiredAccess,
+  [in]           DWORD                 dwShareMode,
+  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  [in]           DWORD                 dwCreationDisposition,
+  [in]           DWORD                 dwFlagsAndAttributes,
+  [in, optional] HANDLE                hTemplateFile
+);
+```
+
+```C:CreateFileA
+HANDLE CreateFileA(
+  [in]           LPCSTR                lpFileName,
+  [in]           DWORD                 dwDesiredAccess,
+  [in]           DWORD                 dwShareMode,
+  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  [in]           DWORD                 dwCreationDisposition,
+  [in]           DWORD                 dwFlagsAndAttributes,
+  [in, optional] HANDLE                hTemplateFile
+);
+```
+
+注目すべきは共に第一引数である。例えば、「Test1.jww」というファイルを読み込ませたのであれば、```da lpFileName```又は```du lpFileName```はファイル名となる。
+
+また、その際の戻り値```HANDLE```も控えておくと、対応するCloseHandleが特定できる。
+
+## JWCADの場合
+Jw_cadの最新版 Version 8.25(2022/04/04)が出たので、これをFuzzingすることを考える。

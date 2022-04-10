@@ -150,7 +150,7 @@ crashの連続発生
   
   省略
   
-  2531: 757288a0          @!"KERNEL32!CreateFileMappingWStub"
+2531: 757288a0          @!"KERNEL32!CreateFileMappingWStub"
 2532: 7575e8f6          @!"KERNEL32!SetUserGeoNameAndIdHelper"
 2533: 7576bde0          @!"KERNEL32!SetMailslotInfo"
 2534: 7577c6fb          @!"KERNEL32!AslFileMappingDelete"

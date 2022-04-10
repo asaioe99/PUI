@@ -131,3 +131,33 @@ crashの連続発生
 
 #### 解決方法
 正直なところどうしようもない。筆者の環境では、実行待ちのqueueが、どうbitflipしてもcrashを引き起こすように変異しており、丸二日間一秒毎の実行回数が１未満だった。最終的に、bitflip等の全ての戦略を終わらせるのに数週間は少なくとも必要であると見積もられたので、Fuzzingを終了した。
+
+### dll全体にブレークポイントを設定したい
+解析対象のアプリケーションが独自のdllを使用している場合、取り敢えずライブラリ単位で呼び出しを監視したいことがある筈だ。
+
+#### 解決方法
+```bm name_of_dll!*```により一括して設定できる。あくまでも個々の関数についてブレークポイントを設定していることに注意すべきである。
+
+```
+0:000> bm KERNEL32!*
+  2: 7577b56f          @!"KERNEL32!RtlWideCharArrayCopyStringWorker"
+  3: 757665b4          @!"KERNEL32!RtlStringCopyWideCharArrayWorker"
+  4: 757324c0          @!"KERNEL32!TermsrvDeleteKey"
+  5: 7572dad5          @!"KERNEL32!RtlStringCchCopyW"
+  6: 75729d40          @!"KERNEL32!QueryInformationJobObject"
+  7: 75729192          @!"KERNEL32!AslPathIsTemporaryInternetFile"
+  8: 75735066          @!"KERNEL32!Internal_InvokeSwitchCallbacksOnINIT"
+  
+  省略
+  
+  2531: 757288a0          @!"KERNEL32!CreateFileMappingWStub"
+2532: 7575e8f6          @!"KERNEL32!SetUserGeoNameAndIdHelper"
+2533: 7576bde0          @!"KERNEL32!SetMailslotInfo"
+2534: 7577c6fb          @!"KERNEL32!AslFileMappingDelete"
+breakpoint 2248 redefined
+2248: 757457d0          @!"KERNEL32!UTUnRegister"
+2535: 75765e30          @!"KERNEL32!AssignProcessToJobObject"
+2536: 75733ab0          @!"KERNEL32!DeleteFileA"
+2537: 75780bcb          @!"KERNEL32!SdbGetTagDataSize"
+2538: 75734c90          @!"KERNEL32!BasepGetAppCompatData"
+```

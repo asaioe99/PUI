@@ -161,3 +161,12 @@ breakpoint 2248 redefined
 2537: 75780bcb          @!"KERNEL32!SdbGetTagDataSize"
 2538: 75734c90          @!"KERNEL32!BasepGetAppCompatData"
 ```
+### エラーが出た１
+以下の様なエラーが表示された。
+![IMG_4943](https://user-images.githubusercontent.com/77034428/163205399-bf04e030-8bd6-4f0d-b2b3-c9d90ffec954.jpg)
+
+#### 原因
+WinAFLをビルドした際に指定したDynamoRioと、WinAFL実行時に```-D```で指定したDynamoRioのバージョンが異なる。
+
+#### 解決方法
+WinAFL実行時に指定するDynamoRioを、ビルド時のものと一致させる。

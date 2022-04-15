@@ -2,7 +2,6 @@
 #pragma warning(disable : 4789)
 #pragma warning(disable : 6200)
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

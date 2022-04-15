@@ -255,7 +255,7 @@ int main(int argc, char** argv) {
         }
         point++;
         if (point > 26000) {
-            for (int i = 16; i < 1000; i++) {
+            for (int i = 16; i < 10000; i++) {
                 ROM[i] = 0xFF;
             }
         }

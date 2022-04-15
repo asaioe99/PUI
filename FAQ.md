@@ -170,3 +170,15 @@ WinAFLをビルドした際に指定したDynamoRioと、WinAFL実行時に```-D
 
 #### 解決方法
 WinAFL実行時に指定するDynamoRioを、ビルド時のものと一致させる。
+
+## WnDBGについて
+### 使い方が分からない。
+皆最初は同じです。
+
+#### 原因
+努力不足
+
+#### 解決方法
+以下を参照
+
+http://windbg.info/download/doc/pdf/WinDbg_A_to_Z_mono_JP.pdf

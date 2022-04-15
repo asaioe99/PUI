@@ -2,6 +2,7 @@
 #pragma warning(disable : 4789)
 #pragma warning(disable : 6200)
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,21 +29,22 @@ unsigned char REG_B = 0b0000;
 unsigned char REG_P = 0b0000;
 unsigned char REG_O = 0b0000;
 int point = 0;
-char ROM[17];
+unsigned char ROM[17];
 unsigned char opcode;
 unsigned char im;
 char c_flag = 0;
 char loop[256 * 256 * 2];
 
 int loop_chk() {
-    int tmp = REG_A & 0b00001111;
-    tmp << 4;
+    long tmp = 0;
+    tmp += REG_A & 0b00001111;
+    tmp <<= 4;
     tmp += REG_B & 0b00001111;
-    tmp << 4;
+    tmp <<= 4;
     tmp += REG_P & 0b00001111;
-    tmp << 4;
+    tmp <<= 4;
     tmp += REG_O & 0b00001111;
-    tmp << 1;
+    tmp <<= 1;
     tmp += c_flag & 0b00000001;
     if (loop[tmp] == 0) {
         loop[tmp]++;
@@ -51,7 +53,6 @@ int loop_chk() {
         return 1;
     }
     return 0;
-
 }
 
 void dumm12(int point) {
@@ -128,7 +129,7 @@ int main(int argc, char** argv) {
     if (fp == NULL) {
         return -1;
     }
-    if (fgets(ROM, 17, fp) == NULL) {
+    if (fgets((char *)ROM, 17, fp) == NULL) {
         return -1;
     }
     fclose(fp);
@@ -242,6 +243,14 @@ int main(int argc, char** argv) {
                 REG_P = (++REG_P) & 0b1111;
             }
             break;
+        case JNC_I:
+            if (c_flag == 0) {
+                REG_P = im;
+            }
+            else {
+                REG_P = (++REG_P) & 0b1111;
+            }
+            c_flag = 0;
         default:
             break;
         }

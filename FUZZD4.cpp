@@ -1,8 +1,6 @@
-﻿
 #pragma warning(disable : 4996)
 #pragma warning(disable : 4789)
 #pragma warning(disable : 6200)
-
 
 #include <stdio.h>
 #include <stdlib.h>

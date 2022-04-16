@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
     while (REG_O < 0b1000) {
         if (loop_chk() == 1) {
             //puts("loop detected!!\n");
-            puts("0 ,");
+            ("0 ,");
             return 0;
         }
         opcode = ROM[REG_P] & 0b11110000;

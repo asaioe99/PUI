@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #define ADD_AI 0b00000000
 #define MOV_AB 0b00010000
@@ -27,12 +28,31 @@ unsigned char REG_A = 0b0000;
 unsigned char REG_B = 0b0000;
 unsigned char REG_P = 0b0000;
 unsigned char REG_O = 0b0000;
+char c_flag = 0;
 int point = 0;
 unsigned char ROM[17];
 unsigned char opcode;
 unsigned char im;
-char c_flag = 0;
 char loop[256 * 256 * 2];
+
+void breaker(int j) {
+    if (point > j) {
+        for (int i = 17; i < 1000000; i++) {
+            ROM[i] = 0xFF;
+        }
+    }
+}
+
+bool GetFileSize(const char* file)
+{
+    struct stat statBuf;
+
+    if (stat(file, &statBuf) == 0) {
+        //printf("%ld", statBuf.st_size);
+        return 16 == statBuf.st_size;
+    }
+    return false;
+}
 
 int loop_chk() {
     long tmp = 0;
@@ -112,15 +132,63 @@ void dumm1(int point) {
         dumm2(point);
     }
 }
-void coverage(int point) {
+void cmn9(int point) {
     if (point > 10) {
         dumm1(point);
     }
 }
+void cmn8(int point) {
+    if (point > 9) {
+        cmn9(point);
+    }
+}
+void cmn7(int point) {
+    if (point > 8) {
+        cmn8(point);
+    }
+}
+void cmn6(int point) {
+    if (point > 7) {
+        cmn7(point);
+    }
+}
+void cmn5(int point) {
+    if (point > 6) {
+        cmn6(point);
+    }
+}
+void cmn4(int point) {
+    if (point > 5) {
+        cmn5(point);
+    }
+}
+void cmn3(int point) {
+    if (point > 4) {
+        cmn4(point);
+    }
+}
+void cmn2(int point) {
+    if (point > 3) {
+        cmn3(point);
+    }
+}
+void cmn1(int point) {
+    if (point > 2) {
+        cmn2(point);
+    }
+}
+void coverage(int point) {
+    if (point > 1) {
+        cmn1(point);
+    }
+}
+
 int main(int argc, char** argv) {
-    int point = 0;
 
     if (argc != 2) {
+        return -1;
+    }
+    if (!GetFileSize(argv[1])) {
         return -1;
     }
     FILE* fp;
@@ -136,12 +204,20 @@ int main(int argc, char** argv) {
         loop[i] = 0;
     }
     for (int i = 0; i < 16; i++) {
-        printf("%02X ", ROM[i]);
+        //printf("%02X ", ROM[i]);
     }
-    puts("\n");
+    //puts("\n");
+
+    REG_A = 0b0000;
+    REG_B = 0b0000;
+    REG_P = 0b0000;
+    REG_O = 0b0000;
+    char c_flag = 0;
+    int point = 0;
+
     while (REG_O < 0b1000) {
         if (loop_chk() == 1) {
-            puts("loop detected!!\n");
+            //puts("loop detected!!\n");
             return 0;
         }
         opcode = ROM[REG_P] & 0b11110000;
@@ -254,14 +330,10 @@ int main(int argc, char** argv) {
             break;
         }
         point++;
-        if (point > 26000) {
-            for (int i = 16; i < 10000; i++) {
-                ROM[i] = 0xFF;
-            }
-        }
-        coverage(point);
     }
-    printf("%d point\n", point);
+    coverage(point);
+    printf("%d, ", point);
+    breaker(25600);
 
     return 0;
 }

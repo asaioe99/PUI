@@ -185,9 +185,15 @@ cmake --build . --config Release
 #### 解決方法
 実行時コマンドに、```-covtype edge```を付け、デフォルトの``` basic block```から変更する。
 
-```:例
+```
 afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -covtype edge -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
 ```
+
+### ディスクへの書き込みが律速になっている
+動作中、ディスクへの書き込みにより動作が遅くなる場合が多々ある。ハードディスクの寿命にも影響するので、メモリ上に仮想デバイスを構築すると良い。
+
+#### 解決方法
+ImDiskを利用する。
 
 ### エラーが出た１
 以下の様なエラーが表示された。

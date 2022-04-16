@@ -169,7 +169,10 @@ Intel PTに対応したCPUであれば、これを利用して高速に（必ず
 64bit版としてWinAFLをビルドし、その際に、
 
 ```
- -DINTELPT=1
+mkdir build64
+cd build64
+cmake -G"Visual Studio 16 2019" -A x64 .. -DDynamoRIO_DIR=..\path\to\DynamoRIO\cmake -DINTELPT=1
+cmake --build . --config Release
 ```
 
 とする。

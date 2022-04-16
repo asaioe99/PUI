@@ -161,6 +161,21 @@ breakpoint 2248 redefined
 2537: 75780bcb          @!"KERNEL32!SdbGetTagDataSize"
 2538: 75734c90          @!"KERNEL32!BasepGetAppCompatData"
 ```
+
+### Intel PTを使って高速にFuzzingしたい
+Intel PTに対応したCPUであれば、これを利用して高速に（必ずしもDynamoRioよりも高速ではない）Fuzzingすることも可能である。
+
+#### 解決方法
+64bit版としてWinAFLをビルドし、その際に、
+
+```
+ -DINTELPT=1
+```
+
+とする。
+
+また、実行時には、```-D```でDynamoRioを指定するのではなく、単に```-P```とだけ付ければ良い。
+
 ### エラーが出た１
 以下の様なエラーが表示された。
 ![IMG_4943](https://user-images.githubusercontent.com/77034428/163205399-bf04e030-8bd6-4f0d-b2b3-c9d90ffec954.jpg)

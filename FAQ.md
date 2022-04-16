@@ -179,6 +179,16 @@ cmake --build . --config Release
 
 また、実行時には、```-D```でDynamoRioを指定するのではなく、単に```-P```とだけ付ければ良い。
 
+### 効率良く脆弱性を発見したい
+様々な方法があるが、coverageの測定法で改善することがある。
+
+#### 解決方法
+実行時コマンドに、```-covtype edge```を付け、デフォルトの``` basic block```から変更する。
+
+```:例
+afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -covtype edge -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
+```
+
 ### エラーが出た１
 以下の様なエラーが表示された。
 ![IMG_4943](https://user-images.githubusercontent.com/77034428/163205399-bf04e030-8bd6-4f0d-b2b3-c9d90ffec954.jpg)

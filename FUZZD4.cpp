@@ -2,6 +2,7 @@
 #pragma warning(disable : 4789)
 #pragma warning(disable : 6200)
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -253,7 +254,7 @@ int main(int argc, char** argv) {
     while (REG_O < 0b1000) {
         if (loop_chk() == 1) {
             //puts("loop detected!!\n");
-            ("0 ,");
+            printf("0 ,");
             return 0;
         }
         opcode = ROM[REG_P] & 0b11110000;
@@ -289,7 +290,7 @@ int main(int argc, char** argv) {
             break;
         case ADD_AI:
             REG_A = REG_A + im;
-            c_flag = 0;
+            //c_flag = 0;
             if (REG_A > 0b1111) {
                 c_flag = 1;
                 REG_A = REG_A & 0b00001111;
@@ -298,7 +299,7 @@ int main(int argc, char** argv) {
             break;
         case ADD_BI:
             REG_B = REG_B + im;
-            c_flag = 0;
+            //c_flag = 0;
             if (REG_B > 0b1111) {
                 c_flag = 1;
                 REG_B = REG_B & 0b1111;

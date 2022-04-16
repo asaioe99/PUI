@@ -37,8 +37,8 @@ char loop[256 * 256 * 2];
 
 void breaker(int j) {
     if (point > j) {
-        for (int i = 17; i < 1000000; i++) {
-            ROM[i] = 0xFF;
+        while (true) {
+
         }
     }
 }
@@ -74,16 +74,51 @@ int loop_chk() {
     return 0;
 }
 
+void dumm19(int point) {
+    //puts("almost there!\n");
+}
+void dumm18(int point) {
+    if (point > 28160) {
+        dumm19(point);
+    }
+}
+void dumm17(int point) {
+    if (point > 25600) {
+        dumm18(point);
+    }
+}
+void dumm16(int point) {
+    if (point > 23040) {
+        dumm17(point);
+    }
+}
+void dumm15(int point) {
+    if (point > 20480) {
+        dumm16(point);
+    }
+}
+void dumm14(int point) {
+    if (point > 17920) {
+        dumm15(point);
+    }
+}
+void dumm13(int point) {
+    if (point > 15360) {
+        dumm14(point);
+    }
+}
 void dumm12(int point) {
-    puts("almost there!\n");
+    if (point > 12800) {
+        dumm13(point);
+    }
 }
 void dumm11(int point) {
-    if (point > 20480) {
+    if (point > 10240) {
         dumm12(point);
     }
 }
 void dumm10(int point) {
-    if (point > 10240) {
+    if (point > 7680) {
         dumm11(point);
     }
 }
@@ -218,6 +253,7 @@ int main(int argc, char** argv) {
     while (REG_O < 0b1000) {
         if (loop_chk() == 1) {
             //puts("loop detected!!\n");
+            puts("0 ,");
             return 0;
         }
         opcode = ROM[REG_P] & 0b11110000;

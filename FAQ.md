@@ -187,7 +187,7 @@ Windows Defenderについては、以下の様に設定すべきである。
 
 ![キャプチャ](https://user-images.githubusercontent.com/77034428/163694945-6f1142c3-a73d-457c-823a-10a395584c76.PNG)
 
-### 効率良く脆弱性を発見したい
+### 効率良く脆弱性を発見したい１
 様々な方法があるが、coverageの測定法で改善することがある。
 
 #### 解決方法
@@ -197,6 +197,12 @@ Windows Defenderについては、以下の様に設定すべきである。
 afl-fuzz.exe -i input -o C:\winafl_for_jwc\build32\bin\Release\JWW\output -t 10000 -D C:\DynamoRIO8.0.18460\bin32 -- -coverage_module common_lib.dll -coverage_module Jw_win.exe -target_module Jw_win.exe -target_offset 0x0283448 -fuzz_iterations 5000 -nargs 2 -covtype edge -call_convention thiscall -- C:\winafl_for_jwc\build32\bin\Release\JWW\Jw_win.exe @@
 ```
 実行速度は遅くなるそうだが、全体のパフォーマンスは向上するらしい。
+
+### 効率良く脆弱性を発見したい２
+様々な方法があるが、ハーネスプロセスのページヒープを有効にすることで改善することがある。
+
+#### 解決方法
+加筆予定
 
 ### ディスクへの書き込みが律速になっている
 動作中、ディスクへの書き込みにより動作が遅くなる場合が多々ある。ハードディスクの寿命にも影響するので、メモリ上に仮想デバイスを構築すると良い。
